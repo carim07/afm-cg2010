@@ -229,7 +229,15 @@ void drawPista() {
 }
 
 void drawObjects() {
-//  drawPista();
+  glPushMatrix();
+  glRotatef(-90,1,0,0);
+  glRotatef(90,0,0,1);
+  
+  drawPista();
+  glPushMatrix();
+  glTranslatef(0,0,.2);
+  glTranslatef(ax,ay,0); //traslacion del auto
+  glRotatef(aang,0,0,1); //rotacion del auto
   
   drawWiredCube();
   
@@ -242,28 +250,34 @@ void drawObjects() {
   glTranslatef(-0.6,0.4,0);
   glRotatef(90,0,0,1);
   glScalef(0.3/2,0.4/2,0.4/2);
-  drawRueda(lod); // x4
+  glRotatef(rang2,1,0,0);
+  drawRueda(lod); // x4 rueda trasera
   glPopMatrix();
   
   glPushMatrix();
   glTranslatef(-0.6,-0.4,0);
   glRotatef(90,0,0,1);
+  glRotatef(rang2,1,0,0);
   glScalef(0.3/2,0.4/2,0.4/2);
-  drawRueda(lod); // x4
+  drawRueda(lod); // x4 rueda trasera
   glPopMatrix();
 
   glPushMatrix();
   glTranslatef(0.44,0.28,0);
   glRotatef(90,0,0,1);
   glScalef((0.3/2)*.8,(0.4/2)*.8,(0.4/2)*.8);
-  drawRueda(lod); // x4
+  glRotatef(-rang,0,0,1);
+  glRotatef(rang2,1,0,0);
+  drawRueda(lod); // x4 adelante izquierda
   glPopMatrix();
   
   glPushMatrix();
   glTranslatef(0.44,-0.28,0);
   glRotatef(90,0,0,1);
+  glRotatef(-rang,0,0,1);
+  glRotatef(rang2,1,0,0);
   glScalef((0.3/2)*.8,(0.4/2)*.8,(0.4/2)*.8);
-  drawRueda(lod); // x4
+  drawRueda(lod); // x4 adealnte derecha
   glPopMatrix();
 
   glPushMatrix();
@@ -303,6 +317,10 @@ void drawObjects() {
   glScalef(.09,.09,.09);
   
   drawCasco(lod);
+  glPopMatrix();
+  
+  glPopMatrix();
+  
   glPopMatrix();
 }
 

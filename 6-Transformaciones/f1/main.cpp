@@ -176,10 +176,16 @@ void regen() {
   glMatrixMode(GL_MODELVIEW); glLoadIdentity(); // matriz del modelo->view
 
   glLightfv(GL_LIGHT0,GL_POSITION,lpos);  // ubica la luz
+  
   gluLookAt(   eye[0],   eye[1],   eye[2],
             target[0],target[1],target[2],
                 up[0],    up[1],    up[2]);// ubica la camara
 
+ 
+  
+ 
+   
+  
   glRotatef(amy,0,1,0); // rota los objetos alrededor de y
 
   glLightfv(GL_LIGHT0,GL_POSITION,lpos);  // ubica la luz
