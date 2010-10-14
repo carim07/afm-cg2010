@@ -229,10 +229,6 @@ void drawPista() {
 }
 
 void drawObjects() {
-  glPushMatrix();
-  glRotatef(-90,1,0,0);
-  glRotatef(90,0,0,1);
-  
   drawPista();
   glPushMatrix();
   glTranslatef(0,0,.2);
@@ -265,16 +261,16 @@ void drawObjects() {
   glPushMatrix();
   glTranslatef(0.44,0.28,0);
   glRotatef(90,0,0,1);
-  glScalef((0.3/2)*.8,(0.4/2)*.8,(0.4/2)*.8);
-  glRotatef(-rang,0,0,1);
+  glRotatef(rang,0,0,1);
   glRotatef(rang2,1,0,0);
+  glScalef((0.3/2)*.8,(0.4/2)*.8,(0.4/2)*.8);
   drawRueda(lod); // x4 adelante izquierda
   glPopMatrix();
   
   glPushMatrix();
   glTranslatef(0.44,-0.28,0);
   glRotatef(90,0,0,1);
-  glRotatef(-rang,0,0,1);
+  glRotatef(rang,0,0,1);
   glRotatef(rang2,1,0,0);
   glScalef((0.3/2)*.8,(0.4/2)*.8,(0.4/2)*.8);
   drawRueda(lod); // x4 adealnte derecha
@@ -317,8 +313,6 @@ void drawObjects() {
   glScalef(.09,.09,.09);
   
   drawCasco(lod);
-  glPopMatrix();
-  
   glPopMatrix();
   
   glPopMatrix();

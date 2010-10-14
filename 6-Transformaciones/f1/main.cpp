@@ -26,7 +26,7 @@ float aspeed=0; // velocidad actual
 float topspeed=50; // velocidad maxima
 float rang=0; // direccion de las ruedas delanteras respecto al auto (eje x del mouse) 
 float rang2=0; // giro de las ruedas sobre su eje, cuando el auto avanza 
-
+float radio=20;
 int
   w=640,h=480, // tamaño de la ventana
   boton=-1, // boton del mouse clickeado
@@ -35,7 +35,7 @@ int
 float // luces y colores en float
   lpos[]={2,1,5,0}, // posicion luz, l[4]: 0 => direccional -- 1 => posicional
   escala=100,escala0, // escala de los objetos window/modelo pixeles/unidad
-  eye[]={0,2,3}, target[]={0,0,-1}, up[]={0,1,0}, // camara, mirando hacia y vertical
+  eye[3],target[3],up[3], // camara, mirando hacia y vertical
   znear=2, zfar=50, //clipping planes cercano y alejado de la camara (en 5 => veo de 3 a -3)
   amy,amy0, // angulo del modelo alrededor del eje y
   ac0=1,rc0, // angulo resp x y distancia al target de la camara al clickear
@@ -119,8 +119,27 @@ void Display_cb() { // Este tiene que estar
   else
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
   
+  glMatrixMode(GL_MODELVIEW);glPushMatrix();
+ 
+  eye[0]= ax - radio + 20 - radio*cos((aang-rang) * G2R);
+  eye[1]= ay - radio*sin((aang-rang) * G2R);
+  eye[2]=8;  
+  target[0]=ax;
+  target[1]=ay;
+  target[2]=0;
+  up[0]=0;
+  up[1]=0;
+  up[2]=1;
+    
+  gluLookAt(   eye[0],   eye[1],   eye[2],
+    target[0],target[1],target[2],
+    up[0],    up[1],    up[2]);// ubica la camara
+  
+
+  
   drawObjects();
   glutSwapBuffers();
+  glPopMatrix();
 
 #ifdef _DEBUG
   // chequea errores
@@ -177,18 +196,13 @@ void regen() {
 
   glLightfv(GL_LIGHT0,GL_POSITION,lpos);  // ubica la luz
   
-  gluLookAt(   eye[0],   eye[1],   eye[2],
-            target[0],target[1],target[2],
-                up[0],    up[1],    up[2]);// ubica la camara
-
- 
-  
- 
-   
-  
+  /*gluLookAt(   eye[0],   eye[1],   eye[2],
+    target[0],target[1],target[2],
+    up[0],    up[1],    up[2]);// ubica la camara
+*/
   glRotatef(amy,0,1,0); // rota los objetos alrededor de y
 
-  glLightfv(GL_LIGHT0,GL_POSITION,lpos);  // ubica la luz
+ //glLightfv(GL_LIGHT0,GL_POSITION,lpos);  // ubica la luz
 
   Display_cb(); // avisa que hay que redibujar
 }
@@ -213,11 +227,13 @@ void Idle_cb() {
     anterior=tiempo;
   }
   aspeed+=aacel*.75-.25;
+  //aspeed+=aacel*anterior;
   if (aspeed<0) aspeed=0;
   else if (aspeed>topspeed) aspeed=topspeed;
   ax+=aspeed*cos(aang*G2R)/100;
-  ay-=aspeed*sin(aang*G2R)/100;
+  ay+=aspeed*sin(aang*G2R)/100;
   aang+=rang*aspeed/150;
+  
   rang2+=aspeed;
   if (ax<-text_w) ax+=text_w*2;
   else if (ax>text_w) ax-=text_w*2;
@@ -254,6 +270,7 @@ void Reshape_cb(int width, int height){
 // controlar el auto, dirección y aceleración
 void Passive_Motion_cb(int xm, int ym){ // drag
   rang=float(xm-w/2)/w*float(15*aspeed+60*(topspeed-aspeed))/topspeed;
+  rang=rang*(-1);
   aacel=float(h-ym*1.5)/h;
   glutPostRedisplay();
 }
