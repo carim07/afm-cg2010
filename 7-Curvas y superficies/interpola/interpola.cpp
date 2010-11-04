@@ -154,7 +154,15 @@ void recalc(int i,bool primario=true){
     if (i!=npc-3) pc[i+1]=pc[i]+l/3; else pc[i+1]=pc[i]+l/2; 
   }
   else if (metodo==1){ //overhausser
-    // direccion proporcional a la cercania
+	p4f uvpos=vpos/dpos; //vel promedio unitaria entre pc[ipos] y pc[i]
+	p4f uvant=vant/dant; //vel promedio unitaria entre pc[i] y pc[iant]
+	
+	p4f vprom=((dpos)*uvant+(dant)*uvpos)/(dpos+dant); //vel prom ponderada entre antes y desp d pasar x pi
+	vprom/=vprom.mod(); //vector unitario
+	if (i!=2)     pc[i-1]=pc[i]-vprom*(dant)/3; else pc[i-1]=pc[i]-vprom*(dant)/2; 
+	if (i!=npc-3) pc[i+1]=pc[i]+vprom*(dpos)/3; else pc[i+1]=pc[i]+vprom*(dpos)/2; 
+	
+	// direccion proporcional a la cercania
     // derivada media = distancia anterior a posterior /2/3
     // derivadas proporcionales a las distancias
     //@@@@ Overhausser:
@@ -163,7 +171,27 @@ void recalc(int i,bool primario=true){
     //  3) puntos invisibles en proporcion directa con las distancias (mas corto el mas cercano)
   }
   //@@@@ aca implementar algun(os) otros modo(s) de evitar el overshooting
-  
+  else if (metodo==2){ //parametrizacion centripeta
+	  dpos=sqrt(dpos);
+	  dant=sqrt(dant);
+	  p4f uvpos=vpos/dpos; //vel promedio unitaria entre pc[ipos] y pc[i]
+	  p4f uvant=vant/dant; //vel promedio unitaria entre pc[i] y pc[iant]
+	  
+	  p4f vprom=((dpos)*uvant+(dant)*uvpos)/(dpos+dant); //vel prom ponderada entre antes y desp d pasar x pi
+	  vprom/=vprom.mod(); //vector unitario
+	  if (i!=2)     pc[i-1]=pc[i]-vprom*(dant)/3; else pc[i-1]=pc[i]-vprom*(dant)/2; 
+	  if (i!=npc-3) pc[i+1]=pc[i]+vprom*(dpos)/3; else pc[i+1]=pc[i]+vprom*(dpos)/2;  
+  }
+  else if (metodo==3){ //invento
+	  if (dpos<dant)
+		  l=vpos;
+	  else l=vant;
+	  if (i!=2)     pc[i-1]=pc[i]-l/3; else pc[i-1]=pc[i]-l/2; 
+	  if (i!=npc-3) pc[i+1]=pc[i]+l/3; else pc[i+1]=pc[i]+l/2;
+	  
+	  
+  }
+	  
   if (primario){
     recalc(iant,false);
     recalc(ipos,false);

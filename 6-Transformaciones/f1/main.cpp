@@ -36,7 +36,7 @@ float // luces y colores en float
   lpos[]={2,1,5,0}, // posicion luz, l[4]: 0 => direccional -- 1 => posicional
   escala=100,escala0, // escala de los objetos window/modelo pixeles/unidad
   eye[3],target[3],up[3], // camara, mirando hacia y vertical
-  znear=2, zfar=50, //clipping planes cercano y alejado de la camara (en 5 => veo de 3 a -3)
+  znear=2, zfar=90, //clipping planes cercano y alejado de la camara (en 5 => veo de 3 a -3)
   amy,amy0, // angulo del modelo alrededor del eje y
   ac0=1,rc0, // angulo resp x y distancia al target de la camara al clickear
 //  sky_color[]={.4,.4,.8,0}; // color del fondo y de la niebla (azul)
@@ -119,9 +119,12 @@ void Display_cb() { // Este tiene que estar
   else
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
   
-  glMatrixMode(GL_MODELVIEW);glPushMatrix();
+  //glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  
+
  
-  eye[0]= ax - radio + 20 - radio*cos((aang-rang) * G2R);
+  eye[0]= ax - radio*cos((aang-rang) * G2R);
   eye[1]= ay - radio*sin((aang-rang) * G2R);
   eye[2]=8;  
   target[0]=ax;
@@ -135,13 +138,13 @@ void Display_cb() { // Este tiene que estar
     target[0],target[1],target[2],
     up[0],    up[1],    up[2]);// ubica la camara
   
-
+  glLightfv(GL_LIGHT0,GL_POSITION,lpos);  // ubica la luz
   
   drawObjects();
   glutSwapBuffers();
   glPopMatrix();
 
-#ifdef _DEBUG
+#ifdef _DEBUG                               
   // chequea errores
   int errornum=glGetError();
   while(errornum!=GL_NO_ERROR){
@@ -194,7 +197,7 @@ void regen() {
 
   glMatrixMode(GL_MODELVIEW); glLoadIdentity(); // matriz del modelo->view
 
-  glLightfv(GL_LIGHT0,GL_POSITION,lpos);  // ubica la luz
+ // glLightfv(GL_LIGHT0,GL_POSITION,lpos);  // ubica la luz
   
   /*gluLookAt(   eye[0],   eye[1],   eye[2],
     target[0],target[1],target[2],
@@ -270,7 +273,7 @@ void Reshape_cb(int width, int height){
 // controlar el auto, dirección y aceleración
 void Passive_Motion_cb(int xm, int ym){ // drag
   rang=float(xm-w/2)/w*float(15*aspeed+60*(topspeed-aspeed))/topspeed;
-  rang=rang*(-1);
+  rang=rang*(-1); // esto porque sino doblaba en la direccion contraria de la que movias el mouse, habria q buscar donde esta mal
   aacel=float(h-ym*1.5)/h;
   glutPostRedisplay();
 }
@@ -503,6 +506,7 @@ void initialize() {
   // caras de atras y adelante distintos (1) o iguales (0)
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,0);
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,0);
+  
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHTING);
 

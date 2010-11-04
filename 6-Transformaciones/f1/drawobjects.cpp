@@ -231,6 +231,7 @@ void drawPista() {
 void drawObjects() {
   drawPista();
   glPushMatrix();
+  
   glTranslatef(0,0,.2);
   glTranslatef(ax,ay,0); //traslacion del auto
   glRotatef(aang,0,0,1); //rotacion del auto
