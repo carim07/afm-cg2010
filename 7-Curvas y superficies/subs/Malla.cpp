@@ -189,63 +189,44 @@ void Malla::Subdivide() {
       }
     }
   }
-  
-  vector<Elemento> etemp;
-  
-  for (i=0;i<e.size();i++){
+  int esize=e.size();
+  for (i=0;i<esize;i++){
     int nv=e[i].nv;
     if (nv==4){
-      Elemento nuevo1(m[Arista(e[i].n[0],e[i].n[1])],e[i].n[1],m[Arista(e[i].n[1],e[i].n[2])],i+tamanio); //al elemento lo conforman el nodo de la arista, el nodo original 1 del elemento, el nodo de la otra arista, el centroide
-      Elemento nuevo2(i+tamanio,m[Arista(e[i].n[1],e[i].n[2])],e[i].n[2],m[Arista(e[i].n[2],e[i].n[3])]); //para entender, dibujar el cuadrado y ver q voy definiendo los elementos empezando abajo-izquierda
-      Elemento nuevo3(m[Arista(e[i].n[3],e[i].n[0])],i+tamanio,m[Arista(e[i].n[2],e[i].n[3])],e[i].n[3]); //siguiendo abajo-derecha, arriba-derecha, arriba-izquierda
-      Elemento nuevo0(e[i].n[0],m[Arista(e[i].n[0],e[i].n[1])],i+tamanio,m[Arista(e[i].n[3],e[i].n[0])]); // reemplazo el elemento actual por el elemento inferior izquierdo
-      
-      etemp.push_back(nuevo0);
-      etemp.push_back(nuevo1);
-      etemp.push_back(nuevo2);
-      etemp.push_back(nuevo3);
-      
+      AgregarElemento(m[Arista(e[i].n[0],e[i].n[1])],e[i].n[1],m[Arista(e[i].n[1],e[i].n[2])],i+tamanio); //al elemento lo conforman el nodo de la arista, el nodo original 1 del elemento, el nodo de la otra arista, el centroide
+      AgregarElemento(i+tamanio,m[Arista(e[i].n[1],e[i].n[2])],e[i].n[2],m[Arista(e[i].n[2],e[i].n[3])]); //para entender, dibujar el cuadrado y ver q voy definiendo los elementos empezando abajo-izquierda
+      AgregarElemento(m[Arista(e[i].n[3],e[i].n[0])],i+tamanio,m[Arista(e[i].n[2],e[i].n[3])],e[i].n[3]); //siguiendo abajo-derecha, arriba-derecha, arriba-izquierda
+      ReemplazarElemento(i,e[i].n[0],m[Arista(e[i].n[0],e[i].n[1])],i+tamanio,m[Arista(e[i].n[3],e[i].n[0])]); // reemplazo el elemento actual por el elemento inferior izquierdo
+           
     }
     else if (nv==3){
-      Elemento nuevo1(m[Arista(e[i].n[0],e[i].n[1])],e[i].n[1],m[Arista(e[i].n[1],e[i].n[2])],i+tamanio);
-      Elemento nuevo2(i+tamanio,m[Arista(e[i].n[1],e[i].n[2])],e[i].n[2],m[Arista(e[i].n[2],e[i].n[0])]);
-      Elemento nuevo0(e[i].n[0],m[Arista(e[i].n[0],e[i].n[1])],i+tamanio,m[Arista(e[i].n[2],e[i].n[0])]);
-      
-      etemp.push_back(nuevo0);
-      etemp.push_back(nuevo1);
-      etemp.push_back(nuevo2);
+      AgregarElemento(m[Arista(e[i].n[0],e[i].n[1])],e[i].n[1],m[Arista(e[i].n[1],e[i].n[2])],i+tamanio);
+      AgregarElemento(i+tamanio,m[Arista(e[i].n[1],e[i].n[2])],e[i].n[2],m[Arista(e[i].n[2],e[i].n[0])]);
+      ReemplazarElemento(i,e[i].n[0],m[Arista(e[i].n[0],e[i].n[1])],i+tamanio,m[Arista(e[i].n[2],e[i].n[0])]);
+          
     }
-    
   }
-  e=etemp;
-  
+
+  MakeVecinos();
   for (i=0;i<tamanio;i++){
-    Nodo f,r;
+    Nodo f=0,r=0;
     int n=p[i].e.size(); //cantidad de elementos a los que pertenece el nodo
-    Elemento et=p[i].e[0];
-    int pos=et.Indice(i);
-    f=et[pos+2];
-    for (j=1;j<n;j++){
-      et=p[i].e[j];
-      pos=et.Indice(i);
+    
+    for (j=0;j<n;j++){
+      Elemento et=p[i].e[j];
+      int pos=et.Indice(i);
       f+=et[pos+2]; //sumamos los centroides (nodo 2 del elemento al que pertenece)
     }
     f/=n;
-    et=p[i].e[0];
-    pos=et.Indice(i);
-    r+=et[pos+1];
-    for (j=1;j<n;j++){
-      et=p[i].e[j];
-      pos=et.Indice(i);
+    for (j=0;j<n;j++){
+      Elemento et=p[i].e[j];
+      int pos=et.Indice(i);
       r+=et[pos+1]; //sumamos los elementos medios de las aristas (nodo 1 del elemento al que pertenece)
     }
     r/=n;
     
     int n3=n-3;
-    if ((n3)<0.0001){
-      p[i]=(r-f)/n;
-    }
-    else 
+    cout<<"n -3:  "<<n3;
       p[i]=(r*4-f+p[i]*(n3))/n;
     
   }
