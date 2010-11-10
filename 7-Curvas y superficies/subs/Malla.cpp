@@ -173,13 +173,19 @@ void Malla::Subdivide() {
     for (j=0;j<nv;j++){
       int n1=e[i][j], n2=e[i][j+1]; // nodo j y nodo j+1 del elemento i (notar la sobrecarga de la suma modulo nv en el []
       if (!(m.find(Arista(n1,n2))!=m.end())){  // esto es para no contar dos veces la misma arista ;)
-      
-      int pc1=i+tamanio, pc2=e[i].v[j]+tamanio;  // centroides del elemento i y del vecino j del elemento i (se suma tamanio porque se guardan ordenados los nodos centroides
-      
-      Nodo nuevo=(p[n1]+p[n2]+p[pc1]+p[pc2])/4; //nuevo nodo promedio de los nodos de la arista y los centroides de los elementos que comparten la arista
-      
-      m[Arista(n1,n2)]=p.size(); // guardamos la arista entre n1 y n2, y la posicion del punto que agregamos. funciona porque esta sobrecargado en modulo nv
-      p.push_back(nuevo);
+        Nodo nuevo;
+        if(p[n1].es_frontera){  // si el nodo es frontera (no tiene elemento vecino a la "derecha")
+          nuevo=(p[n1]+p[n2])/2;
+        }
+        else {
+          int pc1=i+tamanio, pc2=e[i].v[j]+tamanio;  // centroides del elemento i y del vecino j del elemento i (se suma tamanio porque se guardan ordenados los nodos centroides
+          cout<<"tamaño "<<tamanio<<" pc1 "<<pc1<<" "<<"pc2 "<<pc2<<endl;
+          nuevo=(p[n1]+p[n2]+p[pc1]+p[pc2])/4; //nuevo nodo promedio de los nodos de la arista y los centroides de los elementos que comparten la arista   (acá explota)
+          cout<<"tamaño "<<tamanio<<" pc1 "<<pc1<<" "<<"pc2 "<<pc2<<endl;
+        }
+        m[Arista(n1,n2)]=p.size(); // guardamos la arista entre n1 y n2, y la posicion del punto que agregamos. funciona porque esta sobrecargado en modulo nv
+        p.push_back(nuevo);
+        
       }
     }
   }
@@ -188,21 +194,61 @@ void Malla::Subdivide() {
   
   for (i=0;i<e.size();i++){
     int nv=e[i].nv;
-   
-    Elemento nuevo1(m[Arista(e[i].n[0],e[i].n[1])],e[i].n[1],m[Arista(e[i].n[1],e[i].n[2])],i+tamanio); //al elemento lo conforman el nodo de la arista, el nodo original 1 del elemento, el nodo de la otra arista, el centroide
-    Elemento nuevo2(i+tamanio,m[Arista(e[i].n[1],e[i].n[2])],e[i].n[2],m[Arista(e[i].n[2],e[i].n[3])]); //para entender, dibujar el cuadrado y ver q voy definiendo los elementos empezando abajo-izquierda
-    Elemento nuevo3(m[Arista(e[i].n[3],e[i].n[0])],i+tamanio,m[Arista(e[i].n[2],e[i].n[3])],e[i].n[3]); //siguiendo abajo-derecha, arriba-derecha, arriba-izquierda
-    Elemento nuevo0(e[i].n[0],m[Arista(e[i].n[0],e[i].n[1])],i+tamanio,m[Arista(e[i].n[3],e[i].n[0])]); // reemplazo el elemento actual por el elemento inferior izquierdo
-
-    etemp.push_back(nuevo0);
-    etemp.push_back(nuevo1);
-    etemp.push_back(nuevo2);
-    etemp.push_back(nuevo3);
+    if (nv==4){
+      Elemento nuevo1(m[Arista(e[i].n[0],e[i].n[1])],e[i].n[1],m[Arista(e[i].n[1],e[i].n[2])],i+tamanio); //al elemento lo conforman el nodo de la arista, el nodo original 1 del elemento, el nodo de la otra arista, el centroide
+      Elemento nuevo2(i+tamanio,m[Arista(e[i].n[1],e[i].n[2])],e[i].n[2],m[Arista(e[i].n[2],e[i].n[3])]); //para entender, dibujar el cuadrado y ver q voy definiendo los elementos empezando abajo-izquierda
+      Elemento nuevo3(m[Arista(e[i].n[3],e[i].n[0])],i+tamanio,m[Arista(e[i].n[2],e[i].n[3])],e[i].n[3]); //siguiendo abajo-derecha, arriba-derecha, arriba-izquierda
+      Elemento nuevo0(e[i].n[0],m[Arista(e[i].n[0],e[i].n[1])],i+tamanio,m[Arista(e[i].n[3],e[i].n[0])]); // reemplazo el elemento actual por el elemento inferior izquierdo
+      
+      etemp.push_back(nuevo0);
+      etemp.push_back(nuevo1);
+      etemp.push_back(nuevo2);
+      etemp.push_back(nuevo3);
+      
+    }
+    else if (nv==3){
+      Elemento nuevo1(m[Arista(e[i].n[0],e[i].n[1])],e[i].n[1],m[Arista(e[i].n[1],e[i].n[2])],i+tamanio);
+      Elemento nuevo2(i+tamanio,m[Arista(e[i].n[1],e[i].n[2])],e[i].n[2],m[Arista(e[i].n[2],e[i].n[0])]);
+      Elemento nuevo0(e[i].n[0],m[Arista(e[i].n[0],e[i].n[1])],i+tamanio,m[Arista(e[i].n[2],e[i].n[0])]);
+      
+      etemp.push_back(nuevo0);
+      etemp.push_back(nuevo1);
+      etemp.push_back(nuevo2);
+    }
     
   }
   e=etemp;
   
-  //falta mover los nodos originales
+  for (i=0;i<tamanio;i++){
+    Nodo f,r;
+    int n=p[i].e.size(); //cantidad de elementos a los que pertenece el nodo
+    Elemento et=p[i].e[0];
+    int pos=et.Indice(i);
+    f=et[pos+2];
+    for (j=1;j<n;j++){
+      et=p[i].e[j];
+      pos=et.Indice(i);
+      f+=et[pos+2]; //sumamos los centroides (nodo 2 del elemento al que pertenece)
+    }
+    f/=n;
+    et=p[i].e[0];
+    pos=et.Indice(i);
+    r+=et[pos+1];
+    for (j=1;j<n;j++){
+      et=p[i].e[j];
+      pos=et.Indice(i);
+      r+=et[pos+1]; //sumamos los elementos medios de las aristas (nodo 1 del elemento al que pertenece)
+    }
+    r/=n;
+    
+    int n3=n-3;
+    if ((n3)<0.0001){
+      p[i]=(r-f)/n;
+    }
+    else 
+      p[i]=(r*4-f+p[i]*(n3))/n;
+    
+  }
     
   
   
