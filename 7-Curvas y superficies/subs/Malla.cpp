@@ -110,7 +110,7 @@ void Malla::Draw(bool relleno) {
   glDisable(GL_LIGHTING);
   glBegin(GL_POINTS);
   for (i=0;i<p.size();i++) {
-    glVertex3fv(p[i].x);
+  /*  glVertex3fv(p[i].x);*/
     if (p[i].e.size()==0) glVertex3fv(p[i].x);
   }
   glEnd();
@@ -179,9 +179,9 @@ void Malla::Subdivide() {
         }
         else {
           int pc1=i+tamanio, pc2=e[i].v[j]+tamanio;  // centroides del elemento i y del vecino j del elemento i (se suma tamanio porque se guardan ordenados los nodos centroides
-          cout<<"tamaño "<<tamanio<<" pc1 "<<pc1<<" "<<"pc2 "<<pc2<<endl;
+         
           nuevo=(p[n1]+p[n2]+p[pc1]+p[pc2])/4; //nuevo nodo promedio de los nodos de la arista y los centroides de los elementos que comparten la arista   (acá explota)
-          cout<<"tamaño "<<tamanio<<" pc1 "<<pc1<<" "<<"pc2 "<<pc2<<endl;
+         
         }
         m[Arista(n1,n2)]=p.size(); // guardamos la arista entre n1 y n2, y la posicion del punto que agregamos. funciona porque esta sobrecargado en modulo nv
         p.push_back(nuevo);
@@ -206,28 +206,22 @@ void Malla::Subdivide() {
           
     }
   }
-
   MakeVecinos();
+  MakeNormales();
+  
   for (i=0;i<tamanio;i++){
     Nodo f=0,r=0;
     int n=p[i].e.size(); //cantidad de elementos a los que pertenece el nodo
     
     for (j=0;j<n;j++){
-      Elemento et=p[i].e[j];
+      Elemento et=e[p[i].e[j]];
       int pos=et.Indice(i);
-      f+=et[pos+2]; //sumamos los centroides (nodo 2 del elemento al que pertenece)
+      f+=p[et[pos+2]]; //sumamos los centroides (nodo 2 del elemento al que pertenece)
+      r+=p[et[pos+1]]; //sumamos los elementos medios de las aristas (nodo 1 del elemento al que pertenece)
     }
     f/=n;
-    for (j=0;j<n;j++){
-      Elemento et=p[i].e[j];
-      int pos=et.Indice(i);
-      r+=et[pos+1]; //sumamos los elementos medios de las aristas (nodo 1 del elemento al que pertenece)
-    }
     r/=n;
-    
-    int n3=n-3;
-    cout<<"n -3:  "<<n3;
-      p[i]=(r*4-f+p[i]*(n3))/n;
+    p[i]=(r*4-f+p[i]*(n-3))/n;
     
   }
     
