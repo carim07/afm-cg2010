@@ -746,6 +746,16 @@ void initialize() {
   glFrustum(-w0,w0,-h0,h0,znear,zfar);  //generamos la matriz de proyeccion de la camara
   glGetFloatv(GL_MODELVIEW_MATRIX,camproyMatrix); // la guardamos en camproyMatrix
   
+  double // 
+    delta[3]={(target[0]-eye[0]), // vector ojo-target
+      (target[1]-eye[1]),
+      (target[2]-eye[2])},
+    dist=sqrt(delta[0]*delta[0]+
+    delta[1]*delta[1]+
+    delta[2]*delta[2]);
+  w0*=znear/dist,h0*=znear/dist;  // w0 y h0 en el near
+  
+  
   glLoadIdentity();
   gluLookAt(eye[0],eye[1],eye[2],
             target[0],target[1],target[2],
@@ -754,13 +764,14 @@ void initialize() {
   
   glLoadIdentity();
   
-  double delta[3]={(target[0]-lpos[0]), // vector luz-target
+  double
+  delta1[3]={(target[0]-lpos[0]), // vector luz-target
             (target[1]-lpos[1]),
             (target[2]-lpos[2])},
-         dist=sqrt(delta[0]*delta[0]+
-                   delta[1]*delta[1]+
-                   delta[2]*delta[2]);
-  w0*=znear/dist,h0*=znear/dist;  // w0 y h0 en el near
+         dist1=sqrt(delta1[0]*delta1[0]+
+                   delta1[1]*delta1[1]+
+                   delta1[2]*delta1[2]);
+  w0*=znear/dist1,h0*=znear/dist1;  // w0 y h0 en el near
   
   glFrustum(-w0,w0,-h0,h0,znear,zfar);  //generamos la matriz de proyeccion de la luz
   glGetFloatv(GL_MODELVIEW_MATRIX,lightproyMatrix);
